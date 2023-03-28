@@ -1,7 +1,7 @@
 React Password Generator App
 ============================
 
-This is a [simple password generator](https://dhyeymakadia.github.io/Password-Generator/) app built using React that generates secure passwords with a user-selected length.
+This is a simple [password generator app](https://dhyeymakadia.github.io/Password-Generator/) built using React that generates secure passwords with a user-selected length.
 
 Features
 --------
