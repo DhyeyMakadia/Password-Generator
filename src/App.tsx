@@ -1,16 +1,19 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import "./App.css";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import {
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  Grid,
   IconButton,
   InputAdornment,
   MenuItem,
@@ -21,6 +24,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { generatePassword } from "./utils/helper";
 import { Background } from "./components/Background";
 import { PasswordLengthOptions as options } from "./utils/constants";
+import { AllowedCharacters } from "./models/password-generator";
 
 function App() {
   // const backgroundImage = "https://source.unsplash.com/random";
@@ -28,24 +32,13 @@ function App() {
   const [generatedPassword, setGeneratedPassword] = useState<string>("");
   const [passwordLength, setPasswordLength] = useState<number>(8);
   const [copyText, setCopyText] = useState<string>("Copy");
-
-  function Copyright(props: any) {
-    return (
-      <Typography
-        variant="body2"
-        color="text.secondary"
-        align="center"
-        {...props}
-      >
-        {"Copyright © "}
-        <Link color="inherit" href="https://mui.com/">
-          Your Website
-        </Link>{" "}
-        {new Date().getFullYear()}
-        {"."}
-      </Typography>
-    );
-  }
+  const [allowedChars, setAllowedChars] = useState<AllowedCharacters>({
+    uppercase: true,
+    lowercase: true,
+    numbers: true,
+    specialchars: true,
+  });
+  const [error, setError] = useState<boolean>(false);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedPassword);
@@ -53,11 +46,27 @@ function App() {
   };
 
   const handleTooltipClose = () => {
-    setCopyText("Copy");
+    setTimeout(() => {
+      setCopyText("Copy");
+    }, 500);
   };
 
   const Generate = () => {
-    setGeneratedPassword(generatePassword(passwordLength));
+    if (!error) {
+      setGeneratedPassword(generatePassword(passwordLength, allowedChars));
+    }
+  };
+
+  const handleChange = (e: any) => {
+    const updatedValue = { ...allowedChars, [e.target.name]: e.target.checked };
+    setAllowedChars(updatedValue);
+    const isAllUnchecked = Object.values(updatedValue).every(
+      (x) => x === false
+    );
+    setError(false);
+    if (isAllUnchecked) {
+      setError(true);
+    }
   };
 
   return (
@@ -128,6 +137,73 @@ function App() {
                 </MenuItem>
               ))}
             </TextField>
+
+            <FormControl
+              required
+              error={error}
+              component="fieldset"
+              variant="standard"
+            >
+              <Grid container spacing={0}>
+                <Grid item xs={6}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        onChange={handleChange}
+                        name="uppercase"
+                        color="secondary"
+                        checked={allowedChars.uppercase}
+                      />
+                    }
+                    label="Upper Case"
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        onChange={handleChange}
+                        name="lowercase"
+                        color="secondary"
+                        checked={allowedChars.lowercase}
+                      />
+                    }
+                    label="Lower Case"
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        onChange={handleChange}
+                        name="numbers"
+                        color="secondary"
+                        checked={allowedChars.numbers}
+                      />
+                    }
+                    label="Numbers"
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        onChange={handleChange}
+                        name="specialchars"
+                        color="secondary"
+                        checked={allowedChars.specialchars}
+                      />
+                    }
+                    label="Special Characters"
+                  />
+                </Grid>
+              </Grid>
+              {error && (
+                <FormHelperText>
+                  Atleast one option needs to be checked!
+                </FormHelperText>
+              )}
+            </FormControl>
             <Button
               type="button"
               onClick={Generate}

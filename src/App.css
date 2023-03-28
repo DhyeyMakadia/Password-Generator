@@ -10,3 +10,8 @@ html, body {
 .MuiFormLabel-root.Mui-focused{
     color: black !important;
 }
+
+.MuiFormControlLabel-root {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}

@@ -1,33 +1,42 @@
-import React from "react";
+import { AllowedCharacters } from "../models/password-generator";
 
-export function generatePassword(length: number) {
-  const upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const lowerChars = "abcdefghijklmnopqrstuvwxyz";
-  const numberChars = "0123456789";
-  const specialChars = "!()-.?[]_`~;:!@#$%^&*+=";
+export function generatePassword(
+  length: number,
+  allowedChars: AllowedCharacters
+) {
+  const characters: any = {
+    upperChars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    lowerChars: "abcdefghijklmnopqrstuvwxyz",
+    numberChars: "0123456789",
+    specialChars: "!()-.?[]_`~;:!@#$%^&*+=",
+  };
   let password = "";
+  let allowedArray = [];
 
-  password += getRandomChar(upperChars);
-  password += getRandomChar(lowerChars);
-  password += getRandomChar(numberChars);
-  password += getRandomChar(specialChars);
+  const allowedCharsCount: number = Object.values(allowedChars).filter(
+    (x) => x === true
+  ).length;
 
-  for (let i = 4; i < length; i++) {
-    const randomGroup = Math.floor(Math.random() * 4);
-    switch (randomGroup) {
-      case 0:
-        password += getRandomChar(upperChars);
-        break;
-      case 1:
-        password += getRandomChar(lowerChars);
-        break;
-      case 2:
-        password += getRandomChar(numberChars);
-        break;
-      case 3:
-        password += getRandomChar(specialChars);
-        break;
-    }
+  if (allowedChars.uppercase) {
+    password += getRandomChar(characters.upperChars);
+    allowedArray.push("upperChars");
+  }
+  if (allowedChars.lowercase) {
+    password += getRandomChar(characters.lowerChars);
+    allowedArray.push("lowerChars");
+  }
+  if (allowedChars.numbers) {
+    password += getRandomChar(characters.numberChars);
+    allowedArray.push("numberChars");
+  }
+  if (allowedChars.specialchars) {
+    password += getRandomChar(characters.specialChars);
+    allowedArray.push("specialChars");
+  }
+
+  for (let i = 0; i < length - allowedCharsCount; i++) {
+    const randomGroup = Math.floor(Math.random() * allowedCharsCount);
+    password += getRandomChar(characters[allowedArray[randomGroup]]);
   }
 
   return shuffleString(password);
@@ -38,13 +47,13 @@ function getRandomChar(characters: string) {
   return characters.charAt(randomIndex);
 }
 
-function shuffleString(str:string) {
-  const arr = str.split('');
+function shuffleString(str: string) {
+  const arr = str.split("");
 
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
 
-  return arr.join('');
+  return arr.join("");
 }
